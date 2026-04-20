@@ -32,11 +32,11 @@ public class UsuarioService {
     public Usuario updateUsuario(Long id, Usuario usuario) {
         Usuario usuarioExistente = usuarioRepository.findById(id).orElse(null);
         if (usuarioExistente == null) return null;
+        usuarioExistente.setUsername(usuario.getUsername());
+        usuarioExistente.setEmail(usuario.getEmail());
+        usuarioExistente.setPassword(usuario.getPassword());
         usuarioExistente.setNombre(usuario.getNombre());
         usuarioExistente.setApellido(usuario.getApellido());
-        usuarioExistente.setNombreUsuario(usuario.getNombreUsuario());
-        usuarioExistente.setMail(usuario.getMail());
-        usuarioExistente.setContrasena(usuario.getContrasena());
         return usuarioRepository.save(usuarioExistente);
     }
 
