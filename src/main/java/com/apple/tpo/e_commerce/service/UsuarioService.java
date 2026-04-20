@@ -3,9 +3,11 @@ package com.apple.tpo.e_commerce.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.apple.tpo.e_commerce.exception.ResourceNotFoundException;
+import com.apple.tpo.e_commerce.model.Role;
 import com.apple.tpo.e_commerce.model.Usuario;
 import com.apple.tpo.e_commerce.respository.UsuarioRepository;
 
@@ -17,6 +19,8 @@ public class UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public List<Usuario> getAllUsuarios() {
         return usuarioRepository.findAll();
@@ -28,6 +32,10 @@ public class UsuarioService {
     }
 
     public Usuario createUsuario(Usuario usuario) {
+        if (usuario.getRole() == null) {
+            usuario.setRole(Role.ROLE_USER);
+        }
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
         return usuarioRepository.save(usuario);
     }
 
@@ -36,9 +44,14 @@ public class UsuarioService {
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + id));
         usuarioExistente.setUsername(usuario.getUsername());
         usuarioExistente.setEmail(usuario.getEmail());
-        usuarioExistente.setPassword(usuario.getPassword());
+        if (usuario.getPassword() != null && !usuario.getPassword().isBlank()) {
+            usuarioExistente.setPassword(passwordEncoder.encode(usuario.getPassword()));
+        }
         usuarioExistente.setNombre(usuario.getNombre());
         usuarioExistente.setApellido(usuario.getApellido());
+        if (usuario.getRole() != null) {
+            usuarioExistente.setRole(usuario.getRole());
+        }
         return usuarioRepository.save(usuarioExistente);
     }
 
