@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.apple.tpo.e_commerce.exception.ResourceNotFoundException;
 import com.apple.tpo.e_commerce.model.Categoria;
 import com.apple.tpo.e_commerce.respository.CategoriaRepository;
 
@@ -22,7 +23,8 @@ public class CategoriaService {
     }
 
     public Categoria getCategoriaById(Long id) {
-        return categoriaRepository.findById(id).orElse(null);
+        return categoriaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada con id: " + id));
     }
 
     public Categoria createCategoria(Categoria categoria) {
@@ -30,14 +32,17 @@ public class CategoriaService {
     }
 
     public Categoria updateCategoria(Long id, Categoria categoria) {
-        Categoria categoriaExistente = categoriaRepository.findById(id).orElse(null);
-        if (categoriaExistente == null) return null;
+        Categoria categoriaExistente = categoriaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada con id: " + id));
         categoriaExistente.setNombre(categoria.getNombre());
         categoriaExistente.setDescripcion(categoria.getDescripcion());
         return categoriaRepository.save(categoriaExistente);
     }
 
     public void deleteCategoria(Long id) {
+        if (!categoriaRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Categoría no encontrada con id: " + id);
+        }
         categoriaRepository.deleteById(id);
     }
 

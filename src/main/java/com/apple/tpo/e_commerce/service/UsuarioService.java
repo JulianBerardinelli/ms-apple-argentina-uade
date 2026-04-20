@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.apple.tpo.e_commerce.exception.ResourceNotFoundException;
 import com.apple.tpo.e_commerce.model.Usuario;
 import com.apple.tpo.e_commerce.respository.UsuarioRepository;
 
@@ -22,7 +23,8 @@ public class UsuarioService {
     }
 
     public Usuario getUsuarioById(Long id) {
-        return usuarioRepository.findById(id).orElse(null);
+        return usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + id));
     }
 
     public Usuario createUsuario(Usuario usuario) {
@@ -30,8 +32,8 @@ public class UsuarioService {
     }
 
     public Usuario updateUsuario(Long id, Usuario usuario) {
-        Usuario usuarioExistente = usuarioRepository.findById(id).orElse(null);
-        if (usuarioExistente == null) return null;
+        Usuario usuarioExistente = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + id));
         usuarioExistente.setUsername(usuario.getUsername());
         usuarioExistente.setEmail(usuario.getEmail());
         usuarioExistente.setPassword(usuario.getPassword());
@@ -41,6 +43,9 @@ public class UsuarioService {
     }
 
     public void deleteUsuario(Long id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Usuario no encontrado con id: " + id);
+        }
         usuarioRepository.deleteById(id);
     }
 

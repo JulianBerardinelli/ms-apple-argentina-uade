@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.apple.tpo.e_commerce.exception.ResourceNotFoundException;
 import com.apple.tpo.e_commerce.model.Carrito;
 import com.apple.tpo.e_commerce.model.DetalleOrden;
 import com.apple.tpo.e_commerce.model.ItemCarrito;
@@ -40,7 +41,8 @@ public class CarritoService {
     }
 
     public Carrito getCarritoById(Long id) {
-        return carritoRepository.findById(id).orElse(null);
+        return carritoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con id: " + id));
     }
 
     public List<Carrito> getCarritosByUsuarioId(Long usuarioId) {
@@ -54,6 +56,9 @@ public class CarritoService {
     }
 
     public void deleteCarrito(Long id) {
+        if (!carritoRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Carrito no encontrado con id: " + id);
+        }
         carritoRepository.deleteById(id);
     }
 
@@ -61,8 +66,8 @@ public class CarritoService {
     // CHECKOUT: descuenta stock y genera la OrdenCompra
     // =====================================================
     public OrdenCompra checkout(Long carritoId) {
-        Carrito carrito = carritoRepository.findById(carritoId).orElse(null);
-        if (carrito == null) return null;
+        Carrito carrito = carritoRepository.findById(carritoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con id: " + carritoId));
 
         if (!carrito.getEstado().equals("ACTIVO")) {
             throw new RuntimeException("El carrito no está activo.");
@@ -93,7 +98,6 @@ public class CarritoService {
 
         // 3. Procesar cada item: descontar stock y crear DetalleOrden
         double total = 0.0;
-        List<DetalleOrden> detalles = new ArrayList<>();
 
         for (ItemCarrito item : items) {
             Producto producto = item.getProducto();

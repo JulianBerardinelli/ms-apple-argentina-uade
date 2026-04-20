@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.apple.tpo.e_commerce.exception.ResourceNotFoundException;
 import com.apple.tpo.e_commerce.model.Producto;
 import com.apple.tpo.e_commerce.respository.ProductoRepository;
 
@@ -22,11 +23,11 @@ public class ProductoService {
     }
 
     public Producto getProductoById(Long id) {
-        return productoRepository.findById(id).orElse(null);
+        return productoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con id: " + id));
     }
 
     public Producto createProducto(Producto producto) {
-        // Por defecto el producto se crea como activo
         if (producto.getActivo() == null) {
             producto.setActivo(true);
         }
@@ -34,8 +35,8 @@ public class ProductoService {
     }
 
     public Producto updateProducto(Long id, Producto producto) {
-        Producto productoExistente = productoRepository.findById(id).orElse(null);
-        if (productoExistente == null) return null;
+        Producto productoExistente = productoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con id: " + id));
         productoExistente.setNombre(producto.getNombre());
         productoExistente.setDescripcion(producto.getDescripcion());
         productoExistente.setPrecio(producto.getPrecio());
@@ -47,6 +48,9 @@ public class ProductoService {
     }
 
     public void deleteProducto(Long id) {
+        if (!productoRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Producto no encontrado con id: " + id);
+        }
         productoRepository.deleteById(id);
     }
 
