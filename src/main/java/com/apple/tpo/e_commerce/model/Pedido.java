@@ -1,24 +1,8 @@
 package com.apple.tpo.e_commerce.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.Data;
-
-@Data
-@Entity
-@Table(name = "pedidos")
+// ENTIDAD DEPRECADA - será eliminada en el próximo refactor.
+// Reemplazada por OrdenCompra + DetalleOrden.
+// Podés borrar este archivo manualmente.
 public class Pedido {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long usuarioId;
-    private Long productoId;
-    private int cantidad;
-    private double total;
-    private String estado;
-
+    // vacío intencional - sin @Entity para que Hibernate no la mapee
 }
