@@ -26,6 +26,10 @@ public class ProductoService {
     }
 
     public Producto createProducto(Producto producto) {
+        // Por defecto el producto se crea como activo
+        if (producto.getActivo() == null) {
+            producto.setActivo(true);
+        }
         return productoRepository.save(producto);
     }
 
@@ -36,6 +40,9 @@ public class ProductoService {
         productoExistente.setDescripcion(producto.getDescripcion());
         productoExistente.setPrecio(producto.getPrecio());
         productoExistente.setStock(producto.getStock());
+        productoExistente.setActivo(producto.getActivo());
+        productoExistente.setCategoria(producto.getCategoria());
+        productoExistente.setUsuarioCreador(producto.getUsuarioCreador());
         return productoRepository.save(productoExistente);
     }
 
