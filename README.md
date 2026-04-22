@@ -1,7 +1,21 @@
-# 🛍️ E-Commerce Apple Argentina — Backend API (PROYECTO DE PRUEBA)
+# 🛍️ E-Commerce Apple Argentina — Backend API
 
-API REST desarrollada con **Spring Boot** para un sistema de e-commerce de productos Apple (PROYECTO DE PRUEBA).  
-Trabajo Práctico Obligatorio — Aplicaciones Interactivas — UADE 1C 2026.
+API REST desarrollada con **Spring Boot** para un sistema de e-commerce de productos Apple.  
+Trabajo Práctico Obligatorio — Aplicaciones Interactivas — Primer Cuatrimestre 2026 — UADE.
+
+---
+
+## 👥 Equipo
+
+**Grupo Nº 7**
+
+| Integrante | Legajo |
+|------------|--------|
+| Aguado, Augusto | 1195486 |
+| Berardinelli, Julián | 1174139 |
+| Juliano, Pedro Gastón | 1203000 |
+| Mansilla, Marcelo | 1202504 |
+| Sosa, Christian | 1202494 |
 
 ---
 
@@ -10,6 +24,7 @@ Trabajo Práctico Obligatorio — Aplicaciones Interactivas — UADE 1C 2026.
 - **Java 17**
 - **Spring Boot 4.x**
 - **Spring Data JPA / Hibernate**
+- **Spring Security + JWT**
 - **MySQL 8.x**
 - **Lombok**
 - **Maven**
@@ -26,7 +41,7 @@ src/main/resources/application.properties
 
 ---
 
-### 🍎 Opción A — macOS con Docker + MySQL Workbench (configuración actual)
+### Opción A — macOS con Docker + MySQL Workbench (configuración actual)
 
 Esta es la configuración que usamos durante el desarrollo del proyecto.
 
@@ -35,6 +50,7 @@ Esta es la configuración que usamos durante el desarrollo del proyecto.
 ```bash
 docker run --name mysql-ecommerce \
   -e MYSQL_ROOT_PASSWORD=root \
+  -e MYSQL_DATABASE=ecommerce_db4 \
   -p 3306:3306 \
   -d mysql:8.0
 ```
@@ -43,7 +59,18 @@ docker run --name mysql-ecommerce \
 >
 > - Usuario: `root`
 > - Contraseña: `root`
+> - Base: `ecommerce_db4`
 > - Puerto: `3306` (mapeado al host)
+
+#### 1.b Alternativa recomendada: Docker Compose
+
+También podés levantar MySQL con el archivo `docker-compose.yml` del proyecto:
+
+```bash
+docker-compose up -d
+```
+
+Esto crea/levanta el servicio `mysql-ecommerce` y mantiene los datos en un volumen persistente.
 
 #### 2. Verificar que el contenedor esté corriendo
 
@@ -155,6 +182,31 @@ Deberías recibir un array JSON (vacío si no cargaste el seed todavía).
 
 ---
 
+## 🔐 Seguridad (Spring Security + JWT)
+
+La API protege endpoints con JWT Bearer Token.
+
+### Endpoints de autenticación
+
+- `POST /api/auth/register` -> registra usuario y devuelve token.
+- `POST /api/auth/login` -> login y devuelve token.
+
+### Uso del token
+
+En endpoints protegidos enviá:
+
+```http
+Authorization: Bearer <tu_token_jwt>
+```
+
+### Reglas de acceso
+
+- `/api/auth/**` -> público
+- `/api/usuarios/**` -> solo `ROLE_ADMIN`
+- `/api/productos/**`, `/api/carritos/**`, `/api/items-carrito/**` -> requiere autenticación
+
+---
+
 ## 🌱 Cargar datos de prueba (Seed)
 
 Una vez que la app levantó al menos una vez (para que Hibernate cree las tablas):
@@ -171,6 +223,49 @@ El seed incluye:
 - 20 productos del catálogo Apple 2025
 - Fotos de productos, carritos, items y una orden de compra completada
 
+Credenciales seed (password en texto plano: `password`):
+
+- Admin: `admin@apple-ar.com`
+- Usuario: `carlos@email.com`
+- Usuario: `lucia@email.com`
+
+---
+
+## 🧪 Postman (colección completa)
+
+Se incluye una colección con endpoints y pruebas automáticas:
+
+```text
+postman/ms-apple-argentina-uade.postman_collection.json
+```
+
+Incluye:
+
+- flujo de auth (register/login),
+- pruebas de catálogo, carrito, checkout, órdenes y detalles,
+- tests negativos comunes (401/404),
+- guardado automático de `token` e IDs para encadenar requests.
+
+Importación:
+
+1. Abrir Postman -> **Import**
+2. Seleccionar `postman/ms-apple-argentina-uade.postman_collection.json`
+3. Verificar variable `baseUrl = http://localhost:8080`
+
+---
+
+## 📚 Swagger / OpenAPI
+
+La documentación interactiva de endpoints queda disponible en:
+
+- `http://localhost:8080/swagger-ui/index.html`
+
+JSON OpenAPI:
+
+- `http://localhost:8080/v3/api-docs`
+
+Swagger quedó habilitado sin token para facilitar pruebas y exploración de la API.
+
 ---
 
 ## 📌 Endpoints principales
@@ -183,15 +278,10 @@ El seed incluye:
 | PUT    | `/api/productos/{id}`         | Actualizar producto                 |
 | DELETE | `/api/productos/{id}`         | Eliminar producto                   |
 | GET    | `/api/categorias`             | Listar categorías                   |
+| POST   | `/api/auth/register`          | Registro de usuario                 |
+| POST   | `/api/auth/login`             | Login y token JWT                   |
 | POST   | `/api/carritos`               | Crear carrito                       |
 | POST   | `/api/carritos/{id}/checkout` | Realizar checkout (descuenta stock) |
 | GET    | `/api/ordenes/usuario/{id}`   | Ver órdenes de un usuario           |
 
-Para la lista completa de endpoints ver la documentación del proyecto.
-
 ---
-
-## 👥 Equipo
-
-Trabajo Práctico Obligatorio — Aplicaciones Interactivas  
-Primer Cuatrimestre 2026 — UADE
