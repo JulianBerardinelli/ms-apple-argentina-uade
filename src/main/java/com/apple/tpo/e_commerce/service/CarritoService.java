@@ -62,15 +62,13 @@ public class CarritoService {
         carritoRepository.deleteById(id);
     }
 
-    // =====================================================
-    // CHECKOUT: descuenta stock y genera la OrdenCompra
-    // =====================================================
     public OrdenCompra checkout(Long carritoId) {
         Carrito carrito = carritoRepository.findById(carritoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con id: " + carritoId));
 
-        if (!carrito.getEstado().equals("ACTIVO")) {
-            throw new RuntimeException("El carrito no está activo.");
+        String estadoCarrito = carrito.getEstado() == null ? "" : carrito.getEstado().trim();
+        if (!"ACTIVO".equalsIgnoreCase(estadoCarrito)) {
+            throw new RuntimeException("El carrito no está activo. Estado actual: " + carrito.getEstado());
         }
 
         List<ItemCarrito> items = carrito.getItems();

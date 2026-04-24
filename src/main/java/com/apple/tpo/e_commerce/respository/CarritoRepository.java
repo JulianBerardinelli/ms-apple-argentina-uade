@@ -8,7 +8,6 @@ import com.apple.tpo.e_commerce.model.Carrito;
 
 public interface CarritoRepository extends JpaRepository<Carrito, Long> {
 
-    // Buscar todos los carritos de un usuario
     List<Carrito> findByUsuarioId(Long usuarioId);
 
 }

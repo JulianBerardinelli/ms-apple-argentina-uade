@@ -23,7 +23,6 @@ public class DetalleOrdenController {
         return detalleOrdenService.getDetalleById(id);
     }
 
-    // Obtener todos los detalles de una orden
     @GetMapping("/orden/{ordenId}")
     public List<DetalleOrden> getDetallesByOrden(@PathVariable Long ordenId) {
         return detalleOrdenService.getDetallesByOrdenId(ordenId);

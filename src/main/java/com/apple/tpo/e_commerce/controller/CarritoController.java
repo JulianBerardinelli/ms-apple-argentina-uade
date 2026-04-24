@@ -3,6 +3,7 @@ package com.apple.tpo.e_commerce.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.apple.tpo.e_commerce.dto.common.ApiResponse;
 import com.apple.tpo.e_commerce.model.Carrito;
 import com.apple.tpo.e_commerce.model.OrdenCompra;
 import com.apple.tpo.e_commerce.service.CarritoService;
@@ -33,7 +35,6 @@ public class CarritoController {
         return carritoService.getCarritoById(id);
     }
 
-    // Obtener todos los carritos de un usuario
     @GetMapping("/usuario/{usuarioId}")
     public List<Carrito> getCarritosByUsuario(@PathVariable Long usuarioId) {
         return carritoService.getCarritosByUsuarioId(usuarioId);
@@ -45,19 +46,15 @@ public class CarritoController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCarrito(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteCarrito(@PathVariable Long id) {
         carritoService.deleteCarrito(id);
+        return ResponseEntity.ok(ApiResponse.ok(HttpStatus.OK.value(), "Carrito eliminado correctamente", null));
     }
 
-    // CHECKOUT: genera la OrdenCompra y descuenta el stock
     @PostMapping("/{id}/checkout")
-    public ResponseEntity<?> checkout(@PathVariable Long id) {
-        try {
-            OrdenCompra orden = carritoService.checkout(id);
-            return ResponseEntity.ok(orden);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<ApiResponse<OrdenCompra>> checkout(@PathVariable Long id) {
+        OrdenCompra orden = carritoService.checkout(id);
+        return ResponseEntity.ok(ApiResponse.ok(HttpStatus.OK.value(), "Checkout realizado correctamente", orden));
     }
 
 }

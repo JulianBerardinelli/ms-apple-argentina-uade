@@ -28,7 +28,6 @@ public class OrdenCompraController {
         return ordenCompraService.getOrdenById(id);
     }
 
-    // Obtener todas las órdenes de un usuario
     @GetMapping("/usuario/{usuarioId}")
     public List<OrdenCompra> getOrdenesByUsuario(@PathVariable Long usuarioId) {
         return ordenCompraService.getOrdenesByUsuarioId(usuarioId);
