@@ -1,0 +1,16 @@
+target/
+.git/
+.idea/
+.vscode/
+*.iml
+*.jar
+
+# No necesitamos tests para construir el jar (en el Dockerfile usamos -DskipTests)
+src/test/
+
+# Archivos locales / docs
+README.md
+postman/
+*.png
+*.jpg
+

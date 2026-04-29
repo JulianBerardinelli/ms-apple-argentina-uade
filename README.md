@@ -64,13 +64,13 @@ docker run --name mysql-ecommerce \
 
 #### 1.b Alternativa recomendada: Docker Compose
 
-También podés levantar MySQL con el archivo `docker-compose.yml` del proyecto:
+También podés levantar **MySQL y el backend** con el archivo `docker-compose.yml` del proyecto (incluye servicio `backend`):
 
 ```bash
-docker-compose up -d
+docker compose up -d --build
 ```
 
-Esto crea/levanta el servicio `mysql-ecommerce` y mantiene los datos en un volumen persistente.
+Esto crea/levanta los servicios `mysql-db` y `backend` y mantiene los datos en un volumen persistente.
 
 #### 2. Verificar que el contenedor esté corriendo
 
@@ -160,7 +160,9 @@ cd e-commerce
 
 ### 2. Configurar la base de datos
 
-Elegí la opción A (Docker) o B (XAMPP) según tu entorno y editá `application.properties`.
+Elegí la opción A (Docker/Compose) o B (XAMPP) según tu entorno.
+
+Si usás Docker/Compose, el backend toma la configuración de `application-docker.properties` mediante el perfil `docker` (no hace falta editar `application.properties`).
 
 ### 3. Levantar la aplicación
 
@@ -205,16 +207,37 @@ Authorization: Bearer <tu_token_jwt>
 - `/api/usuarios/**` -> solo `ROLE_ADMIN`
 - `/api/productos/**`, `/api/carritos/**`, `/api/items-carrito/**` -> requiere autenticación
 
+### Cómo probar endpoints protegidos (JWT)
+La demo recomendada es: login -> token -> request con `Authorization`.
+
+1. Login (obtiene el JWT):
+```http
+POST /api/auth/login
+Content-Type: application/json
+{
+  "email": "admin@apple-ar.com",
+  "password": "password"
+}
+```
+
+2. Endpoint protegido (enviar token):
+```http
+Authorization: Bearer <tu_token_jwt>
+```
+
+Ejemplos:
+- `GET /api/productos` (requiere autenticación)
+- `GET /api/usuarios` (requiere `ROLE_ADMIN`)
+
 ---
 
 ## 🌱 Cargar datos de prueba (Seed)
 
-Una vez que la app levantó al menos una vez (para que Hibernate cree las tablas):
+El proyecto carga datos de prueba automáticamente al iniciar usando:
+- `src/main/resources/data_seed_startup.sql`
 
-1. **Detener la app**
-2. Abrir el archivo `src/main/resources/data_seed.sql` en MySQL Workbench o phpMyAdmin
-3. Ejecutar el script completo
-4. **Volver a levantar la app**
+> En Docker/Compose, si querés volver a sembrar desde cero, frená el compose y eliminá el volumen:
+> `docker compose down -v` y luego `docker compose up -d --build`.
 
 El seed incluye:
 
@@ -266,6 +289,9 @@ JSON OpenAPI:
 
 Swagger quedó habilitado sin token para facilitar pruebas y exploración de la API.
 
+> Importante: varios endpoints requieren JWT. Si probás desde Swagger y recibís `401/403`, tenés que enviar:
+> `Authorization: Bearer <tu_token_jwt>`
+
 ---
 
 ## 📌 Endpoints principales
@@ -285,3 +311,45 @@ Swagger quedó habilitado sin token para facilitar pruebas y exploración de la 
 | GET    | `/api/ordenes/usuario/{id}`   | Ver órdenes de un usuario           |
 
 ---
+
+## 🐳 Docker Compose (backend + MySQL) - Recomendado para entrega
+
+Levantar todo (backend + DB):
+```bash
+docker compose up -d --build
+```
+
+Endpoints:
+- Backend: `http://localhost:8080`
+- Swagger: `http://localhost:8080/swagger-ui/index.html`
+- Health: `http://localhost:8080/actuator/health`
+
+Re-seed (volver a cargar datos) si hace falta:
+```bash
+docker compose down -v
+docker compose up -d --build
+```
+
+
+## 📊 Reporte de cobertura de tests (JaCoCo)
+
+Generar tests + reporte:
+
+```bash
+./mvnw test
+```
+
+En Windows PowerShell:
+
+```powershell
+.\mvnw.cmd test
+```
+
+El reporte HTML se genera en:
+
+```text
+target/site/jacoco/index.html
+```
+
+Para revisarlo, abrí ese archivo en el navegador.  
+Ahí vas a ver cobertura por **líneas, ramas, métodos y clases**.
