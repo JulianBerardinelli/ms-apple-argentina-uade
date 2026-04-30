@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.apple.tpo.e_commerce.dto.common.ApiResponse;
-import com.apple.tpo.e_commerce.model.FotoProducto;
+import com.apple.tpo.e_commerce.dto.fotoproducto.FotoProductoRequest;
+import com.apple.tpo.e_commerce.dto.fotoproducto.FotoProductoResponse;
 import com.apple.tpo.e_commerce.service.FotoProductoService;
 
 @RestController
@@ -25,23 +26,23 @@ public class FotoProductoController {
     private FotoProductoService fotoProductoService;
 
     @GetMapping
-    public List<FotoProducto> getAllFotos() {
+    public List<FotoProductoResponse> getAllFotos() {
         return fotoProductoService.getAllFotos();
     }
 
     @GetMapping("/{id}")
-    public FotoProducto getFotoById(@PathVariable Long id) {
+    public FotoProductoResponse getFotoById(@PathVariable Long id) {
         return fotoProductoService.getFotoById(id);
     }
 
     @GetMapping("/producto/{productoId}")
-    public List<FotoProducto> getFotosByProducto(@PathVariable Long productoId) {
+    public List<FotoProductoResponse> getFotosByProducto(@PathVariable Long productoId) {
         return fotoProductoService.getFotosByProductoId(productoId);
     }
 
     @PostMapping
-    public FotoProducto createFoto(@RequestBody FotoProducto foto) {
-        return fotoProductoService.createFoto(foto);
+    public FotoProductoResponse createFoto(@RequestBody FotoProductoRequest request) {
+        return fotoProductoService.createFoto(request);
     }
 
     @DeleteMapping("/{id}")
@@ -49,5 +50,4 @@ public class FotoProductoController {
         fotoProductoService.deleteFoto(id);
         return ResponseEntity.ok(ApiResponse.ok(HttpStatus.OK.value(), "Foto eliminada correctamente", null));
     }
-
 }

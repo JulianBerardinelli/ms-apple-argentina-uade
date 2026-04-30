@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.apple.tpo.e_commerce.dto.detalleorden.DetalleOrdenResponse;
+import com.apple.tpo.e_commerce.exception.ResourceNotFoundException;
+import com.apple.tpo.e_commerce.mapper.DtoMapper;
 import com.apple.tpo.e_commerce.model.DetalleOrden;
 import com.apple.tpo.e_commerce.respository.DetalleOrdenRepository;
 
@@ -17,12 +20,16 @@ public class DetalleOrdenService {
     @Autowired
     private DetalleOrdenRepository detalleOrdenRepository;
 
-    public List<DetalleOrden> getDetallesByOrdenId(Long ordenId) {
-        return detalleOrdenRepository.findByOrdenId(ordenId);
+    public List<DetalleOrdenResponse> getDetallesByOrdenId(Long ordenId) {
+        return DtoMapper.toDetalleOrdenResponseList(detalleOrdenRepository.findByOrdenId(ordenId));
     }
 
-    public DetalleOrden getDetalleById(Long id) {
-        return detalleOrdenRepository.findById(id).orElse(null);
+    public DetalleOrdenResponse getDetalleById(Long id) {
+        return DtoMapper.toDetalleOrdenResponse(findDetalleById(id));
     }
 
+    private DetalleOrden findDetalleById(Long id) {
+        return detalleOrdenRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Detalle de orden no encontrado con id: " + id));
+    }
 }

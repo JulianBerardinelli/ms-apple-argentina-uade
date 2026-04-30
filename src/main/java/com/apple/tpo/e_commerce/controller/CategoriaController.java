@@ -14,8 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.apple.tpo.e_commerce.dto.categoria.CategoriaRequest;
+import com.apple.tpo.e_commerce.dto.categoria.CategoriaResponse;
 import com.apple.tpo.e_commerce.dto.common.ApiResponse;
-import com.apple.tpo.e_commerce.model.Categoria;
 import com.apple.tpo.e_commerce.service.CategoriaService;
 
 @RestController
@@ -26,23 +27,23 @@ public class CategoriaController {
     private CategoriaService categoriaService;
 
     @GetMapping
-    public List<Categoria> getAllCategorias() {
+    public List<CategoriaResponse> getAllCategorias() {
         return categoriaService.getAllCategorias();
     }
 
     @GetMapping("/{id}")
-    public Categoria getCategoriaById(@PathVariable Long id) {
+    public CategoriaResponse getCategoriaById(@PathVariable Long id) {
         return categoriaService.getCategoriaById(id);
     }
 
     @PostMapping
-    public Categoria createCategoria(@RequestBody Categoria categoria) {
-        return categoriaService.createCategoria(categoria);
+    public CategoriaResponse createCategoria(@RequestBody CategoriaRequest request) {
+        return categoriaService.createCategoria(request);
     }
 
     @PutMapping("/{id}")
-    public Categoria updateCategoria(@PathVariable Long id, @RequestBody Categoria categoria) {
-        return categoriaService.updateCategoria(id, categoria);
+    public CategoriaResponse updateCategoria(@PathVariable Long id, @RequestBody CategoriaRequest request) {
+        return categoriaService.updateCategoria(id, request);
     }
 
     @DeleteMapping("/{id}")
@@ -50,5 +51,4 @@ public class CategoriaController {
         categoriaService.deleteCategoria(id);
         return ResponseEntity.ok(ApiResponse.ok(HttpStatus.OK.value(), "Categoria eliminada correctamente", null));
     }
-
 }

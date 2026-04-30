@@ -6,16 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.apple.tpo.e_commerce.dto.common.ApiResponse;
-import com.apple.tpo.e_commerce.model.Usuario;
+import com.apple.tpo.e_commerce.dto.usuario.UsuarioRequest;
+import com.apple.tpo.e_commerce.dto.usuario.UsuarioResponse;
 import com.apple.tpo.e_commerce.service.UsuarioService;
 
 @RestController
@@ -26,23 +27,23 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @GetMapping
-    public List<Usuario> getAllUsuarios() {
+    public List<UsuarioResponse> getAllUsuarios() {
         return usuarioService.getAllUsuarios();
     }
 
     @GetMapping("/{id}")
-    public Usuario getUsuarioById(@PathVariable Long id) {
+    public UsuarioResponse getUsuarioById(@PathVariable Long id) {
         return usuarioService.getUsuarioById(id);
     }
 
     @PostMapping
-    public Usuario createUsuario(@RequestBody Usuario usuario) {
-        return usuarioService.createUsuario(usuario);
+    public UsuarioResponse createUsuario(@RequestBody UsuarioRequest request) {
+        return usuarioService.createUsuario(request);
     }
 
     @PutMapping("/{id}")
-    public Usuario updateUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
-        return usuarioService.updateUsuario(id, usuario);
+    public UsuarioResponse updateUsuario(@PathVariable Long id, @RequestBody UsuarioRequest request) {
+        return usuarioService.updateUsuario(id, request);
     }
 
     @DeleteMapping("/{id}")

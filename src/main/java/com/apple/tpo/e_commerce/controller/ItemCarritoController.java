@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.apple.tpo.e_commerce.dto.common.ApiResponse;
-import com.apple.tpo.e_commerce.model.ItemCarrito;
+import com.apple.tpo.e_commerce.dto.itemcarrito.ItemCarritoRequest;
+import com.apple.tpo.e_commerce.dto.itemcarrito.ItemCarritoResponse;
 import com.apple.tpo.e_commerce.service.ItemCarritoService;
 
 @RestController
@@ -25,18 +26,18 @@ public class ItemCarritoController {
     private ItemCarritoService itemCarritoService;
 
     @GetMapping("/{id}")
-    public ItemCarrito getItemById(@PathVariable Long id) {
+    public ItemCarritoResponse getItemById(@PathVariable Long id) {
         return itemCarritoService.getItemById(id);
     }
 
     @GetMapping("/carrito/{carritoId}")
-    public List<ItemCarrito> getItemsByCarrito(@PathVariable Long carritoId) {
+    public List<ItemCarritoResponse> getItemsByCarrito(@PathVariable Long carritoId) {
         return itemCarritoService.getItemsByCarritoId(carritoId);
     }
 
     @PostMapping
-    public ItemCarrito createItem(@RequestBody ItemCarrito item) {
-        return itemCarritoService.createItem(item);
+    public ItemCarritoResponse createItem(@RequestBody ItemCarritoRequest request) {
+        return itemCarritoService.createItem(request);
     }
 
     @DeleteMapping("/{id}")
@@ -44,5 +45,4 @@ public class ItemCarritoController {
         itemCarritoService.deleteItem(id);
         return ResponseEntity.ok(ApiResponse.ok(HttpStatus.OK.value(), "Item de carrito eliminado correctamente", null));
     }
-
 }
