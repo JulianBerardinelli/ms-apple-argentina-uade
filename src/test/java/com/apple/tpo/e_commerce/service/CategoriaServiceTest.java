@@ -1,5 +1,7 @@
 package com.apple.tpo.e_commerce.service;
 
+import com.apple.tpo.e_commerce.dto.categoria.CategoriaRequest;
+import com.apple.tpo.e_commerce.dto.categoria.CategoriaResponse;
 import com.apple.tpo.e_commerce.exception.ResourceNotFoundException;
 import com.apple.tpo.e_commerce.model.Categoria;
 import com.apple.tpo.e_commerce.respository.CategoriaRepository;
@@ -15,82 +17,67 @@ import static org.junit.jupiter.api.Assertions.*;
 class CategoriaServiceTest {
 
     @Test
-    void getAllCategorias_returnsRepositoryResult() {
-        CategoriaRepository categoriaRepository = Mockito.mock(CategoriaRepository.class);
-        CategoriaService service = new CategoriaService();
-        ReflectionTestUtils.setField(service, "categoriaRepository", categoriaRepository);
-
+    void getAllCategorias_returnsDtoResult() {
+        CategoriaRepository repository = Mockito.mock(CategoriaRepository.class);
+        CategoriaService service = createService(repository);
         Categoria categoria = new Categoria();
         categoria.setNombre("Mac");
 
-        Mockito.when(categoriaRepository.findAll()).thenReturn(List.of(categoria));
+        Mockito.when(repository.findAll()).thenReturn(List.of(categoria));
 
-        List<Categoria> categorias = service.getAllCategorias();
+        List<CategoriaResponse> categorias = service.getAllCategorias();
 
         assertEquals(1, categorias.size());
         assertEquals("Mac", categorias.get(0).getNombre());
     }
 
     @Test
-    void getCategoriaById_whenCategoriaExists_returnsCategoria() {
-        CategoriaRepository categoriaRepository = Mockito.mock(CategoriaRepository.class);
-        CategoriaService service = new CategoriaService();
-        ReflectionTestUtils.setField(service, "categoriaRepository", categoriaRepository);
-
+    void getCategoriaById_whenCategoriaExists_returnsDto() {
+        CategoriaRepository repository = Mockito.mock(CategoriaRepository.class);
+        CategoriaService service = createService(repository);
         Categoria categoria = new Categoria();
         categoria.setId(1L);
 
-        Mockito.when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(categoria));
 
-        assertEquals(categoria, service.getCategoriaById(1L));
+        assertEquals(1L, service.getCategoriaById(1L).getId());
     }
 
     @Test
     void getCategoriaById_whenCategoriaDoesNotExist_throwsResourceNotFoundException() {
-        CategoriaRepository categoriaRepository = Mockito.mock(CategoriaRepository.class);
-        CategoriaService service = new CategoriaService();
-        ReflectionTestUtils.setField(service, "categoriaRepository", categoriaRepository);
+        CategoriaRepository repository = Mockito.mock(CategoriaRepository.class);
+        CategoriaService service = createService(repository);
 
-        Mockito.when(categoriaRepository.findById(99L)).thenReturn(Optional.empty());
+        Mockito.when(repository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> service.getCategoriaById(99L));
     }
 
     @Test
-    void createCategoria_savesCategoria() {
-        CategoriaRepository categoriaRepository = Mockito.mock(CategoriaRepository.class);
-        CategoriaService service = new CategoriaService();
-        ReflectionTestUtils.setField(service, "categoriaRepository", categoriaRepository);
+    void createCategoria_savesCategoriaFromRequest() {
+        CategoriaRepository repository = Mockito.mock(CategoriaRepository.class);
+        CategoriaService service = createService(repository);
+        CategoriaRequest request = request("iPhone", "Telefonos");
 
-        Categoria categoria = new Categoria();
-        categoria.setNombre("iPhone");
+        Mockito.when(repository.save(Mockito.any(Categoria.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Mockito.when(categoriaRepository.save(categoria)).thenReturn(categoria);
-
-        Categoria creada = service.createCategoria(categoria);
+        CategoriaResponse creada = service.createCategoria(request);
 
         assertEquals("iPhone", creada.getNombre());
-        Mockito.verify(categoriaRepository).save(categoria);
+        Mockito.verify(repository).save(Mockito.any(Categoria.class));
     }
 
     @Test
     void updateCategoria_whenCategoriaExists_updatesFields() {
-        CategoriaRepository categoriaRepository = Mockito.mock(CategoriaRepository.class);
-        CategoriaService service = new CategoriaService();
-        ReflectionTestUtils.setField(service, "categoriaRepository", categoriaRepository);
-
+        CategoriaRepository repository = Mockito.mock(CategoriaRepository.class);
+        CategoriaService service = createService(repository);
         Categoria existente = new Categoria();
-        existente.setNombre("Viejo");
-        existente.setDescripcion("Descripcion vieja");
+        CategoriaRequest cambios = request("Nuevo", "Descripcion nueva");
 
-        Categoria cambios = new Categoria();
-        cambios.setNombre("Nuevo");
-        cambios.setDescripcion("Descripcion nueva");
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(existente));
+        Mockito.when(repository.save(existente)).thenReturn(existente);
 
-        Mockito.when(categoriaRepository.findById(1L)).thenReturn(Optional.of(existente));
-        Mockito.when(categoriaRepository.save(existente)).thenReturn(existente);
-
-        Categoria actualizada = service.updateCategoria(1L, cambios);
+        CategoriaResponse actualizada = service.updateCategoria(1L, cambios);
 
         assertEquals("Nuevo", actualizada.getNombre());
         assertEquals("Descripcion nueva", actualizada.getDescripcion());
@@ -98,36 +85,46 @@ class CategoriaServiceTest {
 
     @Test
     void updateCategoria_whenCategoriaDoesNotExist_throwsResourceNotFoundException() {
-        CategoriaRepository categoriaRepository = Mockito.mock(CategoriaRepository.class);
-        CategoriaService service = new CategoriaService();
-        ReflectionTestUtils.setField(service, "categoriaRepository", categoriaRepository);
+        CategoriaRepository repository = Mockito.mock(CategoriaRepository.class);
+        CategoriaService service = createService(repository);
 
-        Mockito.when(categoriaRepository.findById(99L)).thenReturn(Optional.empty());
+        Mockito.when(repository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> service.updateCategoria(99L, new Categoria()));
+        assertThrows(ResourceNotFoundException.class, () -> service.updateCategoria(99L, new CategoriaRequest()));
     }
 
     @Test
     void deleteCategoria_whenCategoriaExists_deletesById() {
-        CategoriaRepository categoriaRepository = Mockito.mock(CategoriaRepository.class);
-        CategoriaService service = new CategoriaService();
-        ReflectionTestUtils.setField(service, "categoriaRepository", categoriaRepository);
+        CategoriaRepository repository = Mockito.mock(CategoriaRepository.class);
+        CategoriaService service = createService(repository);
 
-        Mockito.when(categoriaRepository.existsById(1L)).thenReturn(true);
+        Mockito.when(repository.existsById(1L)).thenReturn(true);
 
         service.deleteCategoria(1L);
 
-        Mockito.verify(categoriaRepository).deleteById(1L);
+        Mockito.verify(repository).deleteById(1L);
     }
 
     @Test
     void deleteCategoria_whenCategoriaDoesNotExist_throwsResourceNotFoundException() {
-        CategoriaRepository categoriaRepository = Mockito.mock(CategoriaRepository.class);
-        CategoriaService service = new CategoriaService();
-        ReflectionTestUtils.setField(service, "categoriaRepository", categoriaRepository);
+        CategoriaRepository repository = Mockito.mock(CategoriaRepository.class);
+        CategoriaService service = createService(repository);
 
-        Mockito.when(categoriaRepository.existsById(99L)).thenReturn(false);
+        Mockito.when(repository.existsById(99L)).thenReturn(false);
 
         assertThrows(ResourceNotFoundException.class, () -> service.deleteCategoria(99L));
+    }
+
+    private CategoriaService createService(CategoriaRepository repository) {
+        CategoriaService service = new CategoriaService();
+        ReflectionTestUtils.setField(service, "categoriaRepository", repository);
+        return service;
+    }
+
+    private CategoriaRequest request(String nombre, String descripcion) {
+        CategoriaRequest request = new CategoriaRequest();
+        request.setNombre(nombre);
+        request.setDescripcion(descripcion);
+        return request;
     }
 }

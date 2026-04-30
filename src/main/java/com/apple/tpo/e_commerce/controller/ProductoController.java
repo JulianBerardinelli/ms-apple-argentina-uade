@@ -6,16 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.apple.tpo.e_commerce.dto.common.ApiResponse;
-import com.apple.tpo.e_commerce.model.Producto;
+import com.apple.tpo.e_commerce.dto.producto.ProductoRequest;
+import com.apple.tpo.e_commerce.dto.producto.ProductoResponse;
 import com.apple.tpo.e_commerce.service.ProductoService;
 
 @RestController
@@ -26,23 +27,23 @@ public class ProductoController {
     private ProductoService productoService;
 
     @GetMapping
-    public List<Producto> getAllProductos() {
+    public List<ProductoResponse> getAllProductos() {
         return productoService.getAllProductos();
     }
 
     @GetMapping("/{id}")
-    public Producto getProductoById(@PathVariable Long id) {
+    public ProductoResponse getProductoById(@PathVariable Long id) {
         return productoService.getProductoById(id);
     }
 
     @PostMapping
-    public Producto createProducto(@RequestBody Producto producto) {
-        return productoService.createProducto(producto);
+    public ProductoResponse createProducto(@RequestBody ProductoRequest request) {
+        return productoService.createProducto(request);
     }
 
     @PutMapping("/{id}")
-    public Producto updateProducto(@PathVariable Long id, @RequestBody Producto producto) {
-        return productoService.updateProducto(id, producto);
+    public ProductoResponse updateProducto(@PathVariable Long id, @RequestBody ProductoRequest request) {
+        return productoService.updateProducto(id, request);
     }
 
     @DeleteMapping("/{id}")

@@ -3,6 +3,8 @@ package com.apple.tpo.e_commerce.service;
 import com.apple.tpo.e_commerce.dto.auth.AuthResponse;
 import com.apple.tpo.e_commerce.dto.auth.LoginRequest;
 import com.apple.tpo.e_commerce.dto.auth.RegisterRequest;
+import com.apple.tpo.e_commerce.exception.ConflictException;
+import com.apple.tpo.e_commerce.exception.InvalidCredentialsException;
 import com.apple.tpo.e_commerce.model.Role;
 import com.apple.tpo.e_commerce.model.Usuario;
 import com.apple.tpo.e_commerce.respository.UsuarioRepository;
@@ -24,7 +26,7 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
         if (usuarioRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("El email ya esta registrado");
+            throw new ConflictException("El email ya esta registrado");
         }
 
         Usuario usuario = new Usuario();
@@ -52,7 +54,7 @@ public class AuthService {
         );
 
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Credenciales invalidas"));
+                .orElseThrow(() -> new InvalidCredentialsException("Credenciales invalidas"));
 
         String token = jwtService.generateToken(
                 org.springframework.security.core.userdetails.User

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.apple.tpo.e_commerce.model.OrdenCompra;
+import com.apple.tpo.e_commerce.dto.ordencompra.OrdenCompraResponse;
 import com.apple.tpo.e_commerce.service.OrdenCompraService;
 
 @RestController
@@ -19,18 +19,17 @@ public class OrdenCompraController {
     private OrdenCompraService ordenCompraService;
 
     @GetMapping
-    public List<OrdenCompra> getAllOrdenes() {
+    public List<OrdenCompraResponse> getAllOrdenes() {
         return ordenCompraService.getAllOrdenes();
     }
 
     @GetMapping("/{id}")
-    public OrdenCompra getOrdenById(@PathVariable Long id) {
+    public OrdenCompraResponse getOrdenById(@PathVariable Long id) {
         return ordenCompraService.getOrdenById(id);
     }
 
     @GetMapping("/usuario/{usuarioId}")
-    public List<OrdenCompra> getOrdenesByUsuario(@PathVariable Long usuarioId) {
+    public List<OrdenCompraResponse> getOrdenesByUsuario(@PathVariable Long usuarioId) {
         return ordenCompraService.getOrdenesByUsuarioId(usuarioId);
     }
-
 }

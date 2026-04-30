@@ -1,5 +1,7 @@
 package com.apple.tpo.e_commerce.service;
 
+import com.apple.tpo.e_commerce.dto.ordencompra.OrdenCompraResponse;
+import com.apple.tpo.e_commerce.exception.ResourceNotFoundException;
 import com.apple.tpo.e_commerce.model.OrdenCompra;
 import com.apple.tpo.e_commerce.respository.OrdenCompraRepository;
 import org.junit.jupiter.api.Test;
@@ -14,57 +16,56 @@ import static org.junit.jupiter.api.Assertions.*;
 class OrdenCompraServiceTest {
 
     @Test
-    void getAllOrdenes_returnsRepositoryResult() {
-        OrdenCompraRepository ordenCompraRepository = Mockito.mock(OrdenCompraRepository.class);
-        OrdenCompraService service = new OrdenCompraService();
-        ReflectionTestUtils.setField(service, "ordenCompraRepository", ordenCompraRepository);
-
+    void getAllOrdenes_returnsDtoResult() {
+        OrdenCompraRepository repository = Mockito.mock(OrdenCompraRepository.class);
+        OrdenCompraService service = createService(repository);
         OrdenCompra orden = new OrdenCompra();
         orden.setEstado("COMPLETADA");
 
-        Mockito.when(ordenCompraRepository.findAll()).thenReturn(List.of(orden));
+        Mockito.when(repository.findAll()).thenReturn(List.of(orden));
 
-        List<OrdenCompra> ordenes = service.getAllOrdenes();
+        List<OrdenCompraResponse> ordenes = service.getAllOrdenes();
 
         assertEquals(1, ordenes.size());
         assertEquals("COMPLETADA", ordenes.get(0).getEstado());
     }
 
     @Test
-    void getOrdenById_whenOrdenExists_returnsOrden() {
-        OrdenCompraRepository ordenCompraRepository = Mockito.mock(OrdenCompraRepository.class);
-        OrdenCompraService service = new OrdenCompraService();
-        ReflectionTestUtils.setField(service, "ordenCompraRepository", ordenCompraRepository);
-
+    void getOrdenById_whenOrdenExists_returnsDto() {
+        OrdenCompraRepository repository = Mockito.mock(OrdenCompraRepository.class);
+        OrdenCompraService service = createService(repository);
         OrdenCompra orden = new OrdenCompra();
         orden.setId(1L);
 
-        Mockito.when(ordenCompraRepository.findById(1L)).thenReturn(Optional.of(orden));
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(orden));
 
-        assertEquals(orden, service.getOrdenById(1L));
+        assertEquals(1L, service.getOrdenById(1L).getId());
     }
 
     @Test
-    void getOrdenById_whenOrdenDoesNotExist_returnsNull() {
-        OrdenCompraRepository ordenCompraRepository = Mockito.mock(OrdenCompraRepository.class);
-        OrdenCompraService service = new OrdenCompraService();
-        ReflectionTestUtils.setField(service, "ordenCompraRepository", ordenCompraRepository);
+    void getOrdenById_whenOrdenDoesNotExist_throwsResourceNotFoundException() {
+        OrdenCompraRepository repository = Mockito.mock(OrdenCompraRepository.class);
+        OrdenCompraService service = createService(repository);
 
-        Mockito.when(ordenCompraRepository.findById(99L)).thenReturn(Optional.empty());
+        Mockito.when(repository.findById(99L)).thenReturn(Optional.empty());
 
-        assertNull(service.getOrdenById(99L));
+        assertThrows(ResourceNotFoundException.class, () -> service.getOrdenById(99L));
     }
 
     @Test
-    void getOrdenesByUsuarioId_returnsRepositoryResult() {
-        OrdenCompraRepository ordenCompraRepository = Mockito.mock(OrdenCompraRepository.class);
-        OrdenCompraService service = new OrdenCompraService();
-        ReflectionTestUtils.setField(service, "ordenCompraRepository", ordenCompraRepository);
-
+    void getOrdenesByUsuarioId_returnsDtoResult() {
+        OrdenCompraRepository repository = Mockito.mock(OrdenCompraRepository.class);
+        OrdenCompraService service = createService(repository);
         OrdenCompra orden = new OrdenCompra();
 
-        Mockito.when(ordenCompraRepository.findByUsuarioId(1L)).thenReturn(List.of(orden));
+        Mockito.when(repository.findByUsuarioId(1L)).thenReturn(List.of(orden));
 
         assertEquals(1, service.getOrdenesByUsuarioId(1L).size());
+    }
+
+    private OrdenCompraService createService(OrdenCompraRepository repository) {
+        OrdenCompraService service = new OrdenCompraService();
+        ReflectionTestUtils.setField(service, "ordenCompraRepository", repository);
+        return service;
     }
 }

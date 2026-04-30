@@ -5,7 +5,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.apple.tpo.e_commerce.dto.itemcarrito.ItemCarritoRequest;
+import com.apple.tpo.e_commerce.dto.itemcarrito.ItemCarritoResponse;
+import com.apple.tpo.e_commerce.exception.BusinessException;
 import com.apple.tpo.e_commerce.exception.ResourceNotFoundException;
+import com.apple.tpo.e_commerce.mapper.DtoMapper;
 import com.apple.tpo.e_commerce.model.Carrito;
 import com.apple.tpo.e_commerce.model.ItemCarrito;
 import com.apple.tpo.e_commerce.model.Producto;
@@ -28,41 +32,50 @@ public class ItemCarritoService {
     @Autowired
     private CarritoRepository carritoRepository;
 
-    public List<ItemCarrito> getItemsByCarritoId(Long carritoId) {
-        return itemCarritoRepository.findByCarritoId(carritoId);
+    public List<ItemCarritoResponse> getItemsByCarritoId(Long carritoId) {
+        return DtoMapper.toItemCarritoResponseList(itemCarritoRepository.findByCarritoId(carritoId));
     }
 
-    public ItemCarrito getItemById(Long id) {
-        return itemCarritoRepository.findById(id).orElse(null);
+    public ItemCarritoResponse getItemById(Long id) {
+        return DtoMapper.toItemCarritoResponse(findItemById(id));
     }
 
-    public ItemCarrito createItem(ItemCarrito item) {
-        if (item.getCarrito() == null || item.getCarrito().getId() == null) {
-            throw new RuntimeException("Debe enviar carrito.id");
+    public ItemCarritoResponse createItem(ItemCarritoRequest request) {
+        if (request.getCarritoId() == null) {
+            throw new BusinessException("Debe enviar carritoId");
         }
-        if (item.getProducto() == null || item.getProducto().getId() == null) {
-            throw new RuntimeException("Debe enviar producto.id");
+        if (request.getProductoId() == null) {
+            throw new BusinessException("Debe enviar productoId");
         }
-        if (item.getCantidad() == null || item.getCantidad() <= 0) {
-            throw new RuntimeException("La cantidad debe ser mayor a 0");
+        if (request.getCantidad() == null || request.getCantidad() <= 0) {
+            throw new BusinessException("La cantidad debe ser mayor a 0");
         }
 
-        Carrito carrito = carritoRepository.findById(item.getCarrito().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con id: " + item.getCarrito().getId()));
+        Carrito carrito = carritoRepository.findById(request.getCarritoId())
+                .orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con id: " + request.getCarritoId()));
 
-        Producto producto = productoRepository.findById(item.getProducto().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con id: " + item.getProducto().getId()));
+        Producto producto = productoRepository.findById(request.getProductoId())
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con id: " + request.getProductoId()));
 
+        ItemCarrito item = new ItemCarrito();
         item.setCarrito(carrito);
         item.setProducto(producto);
+        item.setCantidad(request.getCantidad());
         item.setPrecioUnitario(producto.getPrecio());
-        item.setSubtotal(producto.getPrecio() * item.getCantidad());
+        item.setSubtotal(producto.getPrecio() * request.getCantidad());
 
-        return itemCarritoRepository.save(item);
+        return DtoMapper.toItemCarritoResponse(itemCarritoRepository.save(item));
     }
 
     public void deleteItem(Long id) {
+        if (!itemCarritoRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Item de carrito no encontrado con id: " + id);
+        }
         itemCarritoRepository.deleteById(id);
     }
 
+    private ItemCarrito findItemById(Long id) {
+        return itemCarritoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Item de carrito no encontrado con id: " + id));
+    }
 }

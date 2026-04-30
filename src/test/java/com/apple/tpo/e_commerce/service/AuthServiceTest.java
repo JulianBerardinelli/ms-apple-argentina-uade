@@ -3,6 +3,8 @@ package com.apple.tpo.e_commerce.service;
 import com.apple.tpo.e_commerce.dto.auth.AuthResponse;
 import com.apple.tpo.e_commerce.dto.auth.LoginRequest;
 import com.apple.tpo.e_commerce.dto.auth.RegisterRequest;
+import com.apple.tpo.e_commerce.exception.ConflictException;
+import com.apple.tpo.e_commerce.exception.InvalidCredentialsException;
 import com.apple.tpo.e_commerce.model.Role;
 import com.apple.tpo.e_commerce.model.Usuario;
 import com.apple.tpo.e_commerce.respository.UsuarioRepository;
@@ -56,7 +58,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void register_whenEmailAlreadyExists_throwsRuntimeException() {
+    void register_whenEmailAlreadyExists_throwsConflictException() {
         UsuarioRepository usuarioRepository = Mockito.mock(UsuarioRepository.class);
         PasswordEncoder passwordEncoder = Mockito.mock(PasswordEncoder.class);
         AuthenticationManager authenticationManager = Mockito.mock(AuthenticationManager.class);
@@ -68,7 +70,7 @@ class AuthServiceTest {
 
         Mockito.when(usuarioRepository.existsByEmail("usuario@uade.com")).thenReturn(true);
 
-        assertThrows(RuntimeException.class, () -> service.register(request));
+        assertThrows(ConflictException.class, () -> service.register(request));
         Mockito.verify(usuarioRepository, Mockito.never()).save(Mockito.any());
     }
 
@@ -101,7 +103,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void login_whenUsuarioDoesNotExist_throwsRuntimeException() {
+    void login_whenUsuarioDoesNotExist_throwsInvalidCredentialsException() {
         UsuarioRepository usuarioRepository = Mockito.mock(UsuarioRepository.class);
         PasswordEncoder passwordEncoder = Mockito.mock(PasswordEncoder.class);
         AuthenticationManager authenticationManager = Mockito.mock(AuthenticationManager.class);
@@ -114,6 +116,6 @@ class AuthServiceTest {
 
         Mockito.when(usuarioRepository.findByEmail("missing@uade.com")).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> service.login(request));
+        assertThrows(InvalidCredentialsException.class, () -> service.login(request));
     }
 }

@@ -13,9 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.apple.tpo.e_commerce.dto.carrito.CarritoRequest;
+import com.apple.tpo.e_commerce.dto.carrito.CarritoResponse;
 import com.apple.tpo.e_commerce.dto.common.ApiResponse;
-import com.apple.tpo.e_commerce.model.Carrito;
-import com.apple.tpo.e_commerce.model.OrdenCompra;
+import com.apple.tpo.e_commerce.dto.ordencompra.OrdenCompraResponse;
 import com.apple.tpo.e_commerce.service.CarritoService;
 
 @RestController
@@ -26,23 +27,23 @@ public class CarritoController {
     private CarritoService carritoService;
 
     @GetMapping
-    public List<Carrito> getAllCarritos() {
+    public List<CarritoResponse> getAllCarritos() {
         return carritoService.getAllCarritos();
     }
 
     @GetMapping("/{id}")
-    public Carrito getCarritoById(@PathVariable Long id) {
+    public CarritoResponse getCarritoById(@PathVariable Long id) {
         return carritoService.getCarritoById(id);
     }
 
     @GetMapping("/usuario/{usuarioId}")
-    public List<Carrito> getCarritosByUsuario(@PathVariable Long usuarioId) {
+    public List<CarritoResponse> getCarritosByUsuario(@PathVariable Long usuarioId) {
         return carritoService.getCarritosByUsuarioId(usuarioId);
     }
 
     @PostMapping
-    public Carrito createCarrito(@RequestBody Carrito carrito) {
-        return carritoService.createCarrito(carrito);
+    public CarritoResponse createCarrito(@RequestBody CarritoRequest request) {
+        return carritoService.createCarrito(request);
     }
 
     @DeleteMapping("/{id}")
@@ -52,9 +53,8 @@ public class CarritoController {
     }
 
     @PostMapping("/{id}/checkout")
-    public ResponseEntity<ApiResponse<OrdenCompra>> checkout(@PathVariable Long id) {
-        OrdenCompra orden = carritoService.checkout(id);
+    public ResponseEntity<ApiResponse<OrdenCompraResponse>> checkout(@PathVariable Long id) {
+        OrdenCompraResponse orden = carritoService.checkout(id);
         return ResponseEntity.ok(ApiResponse.ok(HttpStatus.OK.value(), "Checkout realizado correctamente", orden));
     }
-
 }

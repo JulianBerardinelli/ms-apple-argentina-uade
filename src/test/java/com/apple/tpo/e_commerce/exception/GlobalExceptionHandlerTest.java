@@ -1,11 +1,11 @@
 package com.apple.tpo.e_commerce.exception;
 
-import com.apple.tpo.e_commerce.dto.common.ApiResponse;
 import com.apple.tpo.e_commerce.dto.auth.RegisterRequest;
+import com.apple.tpo.e_commerce.dto.common.ApiResponse;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.core.MethodParameter;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -21,24 +21,40 @@ class GlobalExceptionHandlerTest {
     void handleResourceNotFound_returnsNotFoundResponse() {
         GlobalExceptionHandler handler = new GlobalExceptionHandler();
 
-        ResponseEntity<ApiResponse<Void>> response = handler.handleResourceNotFound(new ResourceNotFoundException("No existe"));
+        ResponseEntity<ApiResponse<Void>> response =
+                handler.handleResourceNotFound(new ResourceNotFoundException("No existe"));
 
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertFalse(response.getBody().getSuccess());
-        assertEquals("No existe", response.getBody().getMessage());
+        assertError(response, HttpStatus.NOT_FOUND, "No existe");
     }
 
     @Test
-    void handleRuntimeException_returnsBadRequestResponse() {
+    void handleBusinessException_returnsBadRequestResponse() {
         GlobalExceptionHandler handler = new GlobalExceptionHandler();
 
-        ResponseEntity<ApiResponse<Void>> response = handler.handleRuntimeException(new RuntimeException("Stock insuficiente"));
+        ResponseEntity<ApiResponse<Void>> response =
+                handler.handleBusinessException(new BusinessException("Stock insuficiente"));
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertFalse(response.getBody().getSuccess());
-        assertEquals("Stock insuficiente", response.getBody().getMessage());
+        assertError(response, HttpStatus.BAD_REQUEST, "Stock insuficiente");
+    }
+
+    @Test
+    void handleConflict_returnsConflictResponse() {
+        GlobalExceptionHandler handler = new GlobalExceptionHandler();
+
+        ResponseEntity<ApiResponse<Void>> response =
+                handler.handleConflict(new ConflictException("El email ya esta registrado"));
+
+        assertError(response, HttpStatus.CONFLICT, "El email ya esta registrado");
+    }
+
+    @Test
+    void handleInvalidCredentials_returnsUnauthorizedResponse() {
+        GlobalExceptionHandler handler = new GlobalExceptionHandler();
+
+        ResponseEntity<ApiResponse<Void>> response =
+                handler.handleInvalidCredentials(new InvalidCredentialsException("Credenciales invalidas"));
+
+        assertError(response, HttpStatus.UNAUTHORIZED, "Credenciales invalidas");
     }
 
     @Test
@@ -65,10 +81,14 @@ class GlobalExceptionHandlerTest {
 
         ResponseEntity<ApiResponse<Void>> response = handler.handleException(new Exception("Error inesperado"));
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertError(response, HttpStatus.INTERNAL_SERVER_ERROR, "Error inesperado");
+    }
+
+    private void assertError(ResponseEntity<ApiResponse<Void>> response, HttpStatus status, String message) {
+        assertEquals(status, response.getStatusCode());
         assertNotNull(response.getBody());
         assertFalse(response.getBody().getSuccess());
-        assertEquals("Error inesperado", response.getBody().getMessage());
+        assertEquals(message, response.getBody().getMessage());
     }
 
     private void validar(RegisterRequest request) {
