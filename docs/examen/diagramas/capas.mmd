@@ -1,0 +1,24 @@
+flowchart TB
+    Client["Cliente externo: Postman, Swagger, navegador o frontend"]
+    Security["Spring Security\nSecurityConfig + JwtAuthFilter"]
+    Controllers["Controllers\n@RestController"]
+    Services["Services\n@Service + @Transactional"]
+    Repositories["Repositories\nJpaRepository"]
+    Entities["Entities JPA\n@Entity"]
+    Database["MySQL ecommerce_db4"]
+    DTOs["DTOs + DtoMapper"]
+    Errors["GlobalExceptionHandler + ApiResponse"]
+
+    Client --> Security
+    Security --> Controllers
+    Controllers --> Services
+    Services --> Repositories
+    Repositories --> Entities
+    Entities --> Database
+    Services --> DTOs
+    DTOs --> Controllers
+    Controllers --> Client
+    Services -. throws .-> Errors
+    Controllers -. exceptions .-> Errors
+    Errors --> Client
+

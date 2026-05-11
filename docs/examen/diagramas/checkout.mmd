@@ -1,0 +1,27 @@
+sequenceDiagram
+    participant C as Cliente
+    participant CC as CarritoController
+    participant CS as CarritoService
+    participant CR as CarritoRepository
+    participant PR as ProductoRepository
+    participant OR as OrdenCompraRepository
+    participant DR as DetalleOrdenRepository
+
+    C->>CC: POST /api/carritos/{id}/checkout
+    CC->>CS: checkout(id)
+    CS->>CR: findById(id)
+    CR-->>CS: Carrito con items
+    CS->>CS: validar estado ACTIVO
+    CS->>CS: validar carrito no vacio
+    CS->>CS: validar stock suficiente
+    CS->>OR: save(orden total 0)
+    OR-->>CS: ordenGuardada
+    loop por cada item
+        CS->>PR: save(producto con stock descontado)
+        CS->>DR: save(detalleOrden)
+    end
+    CS->>OR: save(orden con total)
+    CS->>CR: save(carrito estado CHECKOUT)
+    CS-->>CC: OrdenCompraResponse
+    CC-->>C: ApiResponse 200
+

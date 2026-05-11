@@ -1,0 +1,23 @@
+sequenceDiagram
+    participant C as Cliente
+    participant AC as AuthController
+    participant AS as AuthService
+    participant AM as AuthenticationManager
+    participant UDS as CustomUserDetailsService
+    participant UR as UsuarioRepository
+    participant JS as JwtService
+
+    C->>AC: POST /api/auth/login
+    AC->>AS: login(request)
+    AS->>AM: authenticate(email, password)
+    AM->>UDS: loadUserByUsername(email)
+    UDS->>UR: findByEmail(email)
+    UR-->>UDS: Usuario
+    UDS-->>AM: UserDetails
+    AM-->>AS: autenticado
+    AS->>UR: findByEmail(email)
+    AS->>JS: generateToken(userDetails)
+    JS-->>AS: JWT
+    AS-->>AC: AuthResponse
+    AC-->>C: 200 OK
+

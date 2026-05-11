@@ -1,0 +1,80 @@
+erDiagram
+    USUARIO ||--o{ PRODUCTO : crea
+    USUARIO ||--o{ CARRITO : tiene
+    USUARIO ||--o{ ORDEN_COMPRA : realiza
+    CATEGORIA ||--o{ PRODUCTO : agrupa
+    PRODUCTO ||--o{ FOTO_PRODUCTO : tiene
+    PRODUCTO ||--o{ ITEM_CARRITO : aparece_en
+    PRODUCTO ||--o{ DETALLE_ORDEN : aparece_en
+    CARRITO ||--o{ ITEM_CARRITO : contiene
+    CARRITO ||--o| ORDEN_COMPRA : genera
+    ORDEN_COMPRA ||--o{ DETALLE_ORDEN : contiene
+
+    USUARIO {
+        long id PK
+        string username
+        string email
+        string password
+        string nombre
+        string apellido
+        string role
+    }
+
+    CATEGORIA {
+        long id PK
+        string nombre
+        string descripcion
+    }
+
+    PRODUCTO {
+        long id PK
+        string nombre
+        string descripcion
+        double precio
+        int stock
+        boolean activo
+        long usuario_creador_id FK
+        long categoria_id FK
+    }
+
+    FOTO_PRODUCTO {
+        long id PK
+        string url_imagen
+        int orden
+        long producto_id FK
+    }
+
+    CARRITO {
+        long id PK
+        datetime fecha_creacion
+        string estado
+        long usuario_id FK
+    }
+
+    ITEM_CARRITO {
+        long id PK
+        int cantidad
+        double precio_unitario
+        double subtotal
+        long carrito_id FK
+        long producto_id FK
+    }
+
+    ORDEN_COMPRA {
+        long id PK
+        datetime fecha_orden
+        double total
+        string estado
+        long usuario_id FK
+        long carrito_id FK
+    }
+
+    DETALLE_ORDEN {
+        long id PK
+        int cantidad
+        double precio_unitario
+        double subtotal
+        long orden_id FK
+        long producto_id FK
+    }
+
